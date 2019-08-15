@@ -16,6 +16,7 @@ def retrieveJobs (String jobDir) {
 def buildPipelineJobs(String jobName){
     String repoUrl = "https://github.com/hereischen/hola-jenkins.git"
     println "Seeding job ${jobName}."
+
     pipelineJob(jobName) {
         definition {
             cpsScm {
@@ -35,6 +36,7 @@ def buildPipelineJobs(String jobName){
         }
         // build jobs to make their properties effective
         queue(jobName)
+
     }
 }
 

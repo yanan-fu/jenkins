@@ -1,0 +1,95 @@
+jenkins:
+  systemMessage: "Controlled by Configuration as Code"
+  numExecutors: 1
+  quietPeriod: 0
+
+  # Default LDAP configuration
+  securityRealm:
+    ldap:
+      cache:
+        size: 100
+        ttl: 10
+      configurations:
+        - server: ldaps://ldap.corp.redhat.com
+          rootDN: dc=redhat,dc=com
+          inhibitInferRootDN: false
+          userSearch: uid={0}
+          groupSearchFilter: (& (cn={0}) (objectclass=GroupOfUniqueNames))
+      userIdStrategy: CaseInsensitive
+      groupIdStrategy: CaseInsensitive
+
+  authorizationStrategy:
+    roleBased:
+      roles:
+        global:
+          - name: "admin"
+            description: "Jenkins administrators"
+            permissions:
+              - "Overall/Administer"
+            assignments:
+              - "cci-octopus" # Instance telemetry collection
+              - "ci-support" # Access for the support team
+              - "sysops" # Access for the support team
+              - "ccit-test" # OpenShift automation account
+              - "ccit" # CCIT team
+              - "qemu-kvm-qe-ci"
+          - name: "anonymous"
+            description: "Anonymous users"
+            permissions:
+              - "Overall/Read"
+              - "Job/Read"
+            assignments:
+              - "anonymous"
+          - name: "readonly"
+            description: "Read-only users"
+            permissions:
+              - "Overall/Read"
+              - "Job/Read"
+              - "Job/ExtendedRead"
+              - "View/Read"
+            assignments:
+              - "authenticated"
+
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: true
+  markupFormatter:
+    rawHtml:
+      disableSyntaxHighlighting: false
+  slaveAgentPort: 50000
+  agentProtocols:
+  - "JNLP4-connect"
+  - "Ping"
+
+  updateCenter:
+    sites:
+    - id: "redhat"
+      url: "http://ci-ops-jenkins-update-site.rhev-ci-vms.eng.rdu2.redhat.com/update-center/2.121/redhat/update-center.json"
+    - id: "optional"
+      url: "http://ci-ops-jenkins-update-site.rhev-ci-vms.eng.rdu2.redhat.com/update-center/2.121/optional/update-center.json"
+    - id: "default"
+      url: "http://ci-ops-jenkins-update-site.rhev-ci-vms.eng.rdu2.redhat.com/update-center/2.121/default/update-center.json"
+
+  clouds: []
+
+security:
+  remotingCLI:
+    enabled: false
+  sSHD:
+    port: 50022
+  downloadSettings:
+    useBrowser: false
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+
+unclassified:
+  shell:
+    shell: "bash"
+
+configuration-as-code:
+  deprecated: warn
+
+jobs:
+  - url: https://gitlab.cee.redhat.com/ccit/monitoring-seed/raw/master/seed.groovy
